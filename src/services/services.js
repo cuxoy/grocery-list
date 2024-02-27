@@ -24,7 +24,7 @@ export const toggleIsBought = async ({ id, isBought }) => {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ isBought: isBought }),
+    body: JSON.stringify({ isBought }),
   });
   return response.json();
 };
