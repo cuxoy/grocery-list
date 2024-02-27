@@ -10,9 +10,13 @@ import {
 
 const GroceryList = () => {
   const queryClient = useQueryClient();
+  const { data: items, status, error } = useQuery("items", fetchItems);
+
   const [text, setText] = useState("");
   const [price, setPrice] = useState(0);
   const [isBought, setIsBought] = useState(false);
+
+  const [isBoughtList, setIsBoughtList] = useState(null);
 
   const [modalText, setModalText] = useState("");
   const [modalPrice, setModalPrice] = useState(0);
@@ -20,7 +24,6 @@ const GroceryList = () => {
 
   const [selectedItemId, setSelectedItemId] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const { data: items, status, error } = useQuery("items", fetchItems);
 
   const sum = items
     ? items
@@ -123,11 +126,49 @@ const GroceryList = () => {
     }
   };
 
+  const handleShowBoughtItems = () => {
+    setIsBoughtList(true);
+  };
+
+  const handleShowNotBoughtItems = () => {
+    setIsBoughtList(false);
+  };
+
+  const handleShowAllItems = () => {
+    setIsBoughtList(null);
+  };
+
   if (status === "loading") return <div>Loading...</div>;
   if (status === "error") return <div>Error: {error.message}</div>;
 
+  let filteredItems = items;
+  if (isBoughtList !== null) {
+    filteredItems = items.filter((item) => item.isBought === isBoughtList);
+  }
+
+  let filteredSum = 0;
+  let filteredPotenialSum = 0;
+
+  if (filteredItems.length > 0) {
+    filteredSum = filteredItems
+      .filter((item) => item.isBought)
+      .reduce((acc, item) => acc + item.price, 0);
+
+    filteredPotenialSum = filteredItems.reduce(
+      (acc, item) => acc + item.price,
+      0
+    );
+  }
+
   return (
     <div>
+      <div>
+        <button onClick={handleShowBoughtItems}>Show Bought Items</button>
+        <button onClick={handleShowNotBoughtItems}>
+          Show Not Bought Items
+        </button>
+        <button onClick={handleShowAllItems}>Show All Items</button>
+      </div>
       <input type="text" value={text} onChange={handleInputChange} />
       <input
         type="number"
@@ -137,7 +178,7 @@ const GroceryList = () => {
 
       <button onClick={handleAddItem}> Add Item </button>
       <ul>
-        {items.map((item) => (
+        {filteredItems.map((item) => (
           <li
             key={item.id}
             style={{
@@ -155,8 +196,12 @@ const GroceryList = () => {
           </li>
         ))}
       </ul>
-      <div>{`sum: ${sum} $`}</div>
-      <div>{`potencial sum: ${potenialSum} $`}</div>
+      {(isBoughtList == null || isBoughtList) && (
+        <div>{`sum: ${filteredSum} $`}</div>
+      )}
+      {(isBoughtList == null || !isBoughtList) && (
+        <div>{`potencial sum: ${filteredPotenialSum} $`}</div>
+      )}
 
       {isPopupOpen && (
         <div className="popup">
