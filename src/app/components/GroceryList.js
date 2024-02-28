@@ -104,9 +104,8 @@ const GroceryList = () => {
     }
   };
 
-  const handleToggleIsBought = (id) => {
-    setIsBought(!isBought);
-    toggleIsBoughtMutation.mutate({ id: id, isBought: isBought });
+  const handleToggleIsBought = (id, isBought) => {
+    toggleIsBoughtMutation.mutate({ id: id, isBought: !isBought });
   };
 
   const handleDeleteItem = (id) => {
@@ -265,7 +264,7 @@ const GroceryList = () => {
               />
               <Checkbox
                 checked={item.isBought}
-                onChange={() => handleToggleIsBought(item.id)}
+                onChange={() => handleToggleIsBought(item.id, item.isBought)}
               />
               <Button onClick={() => handleDeleteItem(item.id)}>Delete</Button>
               <Button onClick={() => handleOpenPopup(item.id)}>Edit</Button>

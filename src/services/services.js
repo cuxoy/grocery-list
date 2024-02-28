@@ -33,6 +33,7 @@ export const toggleIsBought = async ({ id, isBought }) => {
       body: JSON.stringify({ isBought }),
     }
   );
+  console.log("click");
 };
 
 export const editItem = async ({ id, isBought, name, price }) => {
