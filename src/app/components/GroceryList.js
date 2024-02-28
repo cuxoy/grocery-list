@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { v4 } from "uuid";
+
 import { useQuery, useMutation, queryCache, useQueryClient } from "react-query";
 
 import {
@@ -253,7 +253,7 @@ const GroceryList = () => {
         </Button>
         <List style={{ marginTop: 20 }}>
           {filteredItems.map((item, i) => (
-            <ListItem key={() => v4()}>
+            <ListItem key={item.id}>
               <ListItemText
                 primary={`${i + 1}) ${item.name}`}
                 secondary={item.price && `${item.price} $`}

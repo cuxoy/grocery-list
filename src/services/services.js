@@ -20,7 +20,6 @@ export const addItem = async ({ itemName, itemPrice }) => {
       }),
     }
   );
-  return response.json();
 };
 
 export const toggleIsBought = async ({ id, isBought }) => {
@@ -34,7 +33,6 @@ export const toggleIsBought = async ({ id, isBought }) => {
       body: JSON.stringify({ isBought }),
     }
   );
-  return response.json();
 };
 
 export const editItem = async ({ id, isBought, name, price }) => {
@@ -48,15 +46,13 @@ export const editItem = async ({ id, isBought, name, price }) => {
       body: JSON.stringify({ isBought: isBought, name, price: +price }),
     }
   );
-  return response.json();
 };
 
-export const deleteItem = async (itemId) => {
+export const deleteItem = async (id) => {
   const response = await fetch(
-    `https://grocery-server-100500-002e71001da6.herokuapp.com/items/${itemId}`,
+    `https://grocery-server-100500-002e71001da6.herokuapp.com/items/${id}`,
     {
       method: "DELETE",
     }
   );
-  return response.json();
 };
