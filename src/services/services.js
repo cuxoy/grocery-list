@@ -1,3 +1,5 @@
+import { v4 } from "uuid";
+
 export const fetchItems = async () => {
   const response = await fetch(
     "https://grocery-server-100500-002e71001da6.herokuapp.com/items"
@@ -17,6 +19,7 @@ export const addItem = async ({ itemName, itemPrice }) => {
         name: itemName,
         isBought: false,
         price: +itemPrice,
+        id: v4(),
       }),
     }
   );
