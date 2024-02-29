@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, queryCache, useQueryClient } from "react-query";
-
+import FilterButtons from "./FilterButtons.js";
+import Item from "./Item.js";
+import PopUp from "./PopUp.js";
 import {
   fetchItems,
   addItem,
@@ -18,13 +20,6 @@ import {
   TextField,
   Button,
   List,
-  ListItem,
-  ListItemText,
-  Checkbox,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
 } from "@mui/material";
 
 const GroceryList = () => {
@@ -49,15 +44,17 @@ const GroceryList = () => {
 
   const [text, setText] = useState("");
   const [price, setPrice] = useState(0);
-  const [isBought, setIsBought] = useState(false);
 
-  // Стейт для контролю зміни нового продукту
+  // Стейт для контролю зміни  продукту
 
-  const [isBoughtList, setIsBoughtList] = useState(null);
   const [modalText, setModalText] = useState("");
   const [modalPrice, setModalPrice] = useState(0);
   const [modalIsBought, setModalIsBought] = useState(false);
-  const [selectedItemId, setSelectedItemId] = useState(null);
+  const [selectedItemId, setSelectedItemId] = useState();
+
+  // стейт фільтрації
+
+  const [isBoughtList, setIsBoughtList] = useState(null);
 
   // Стейт для відкриття поп-ап
 
@@ -69,6 +66,8 @@ const GroceryList = () => {
     mutationFn: addItem,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["items"] });
+      setText("");
+      setPrice(0);
     },
   });
 
@@ -98,8 +97,6 @@ const GroceryList = () => {
   const handleAddItem = () => {
     if (text) {
       addItemMutation.mutate({ itemName: text, itemPrice: price });
-      setText("");
-      setPrice(0);
     }
   };
 
@@ -197,38 +194,12 @@ const GroceryList = () => {
             <Typography variant="h6">Grocery List</Typography>
           </Toolbar>
         </AppBar>
-        <div style={{ margin: "20px 0" }}>
-          <Button
-            variant="contained"
-            color={isBoughtList === true ? "secondary" : "primary"}
-            style={{
-              margin: 10,
-            }}
-            onClick={handleShowBoughtItems}
-          >
-            Show Bought Items
-          </Button>
-          <Button
-            variant="contained"
-            color={isBoughtList === false ? "secondary" : "primary"}
-            style={{
-              margin: 10,
-            }}
-            onClick={handleShowNotBoughtItems}
-          >
-            Show Not Bought Items
-          </Button>
-          <Button
-            variant="contained"
-            color={isBoughtList === null ? "secondary" : "primary"}
-            style={{
-              margin: 10,
-            }}
-            onClick={handleShowAllItems}
-          >
-            Show All Items
-          </Button>
-        </div>
+        <FilterButtons
+          isBoughtList={isBoughtList}
+          handleShowBoughtItems={handleShowBoughtItems}
+          handleShowNotBoughtItems={handleShowNotBoughtItems}
+          handleShowAllItems={handleShowAllItems}
+        />
         <TextField
           label="Item Name"
           value={text}
@@ -251,23 +222,13 @@ const GroceryList = () => {
         </Button>
         <List style={{ marginTop: 20 }}>
           {filteredItems.map((item, i) => (
-            <ListItem key={item.id}>
-              <ListItemText
-                primary={`${i + 1}) ${item.name}`}
-                secondary={item.price && `${item.price} $`}
-                style={{
-                  textDecoration: item.isBought ? "line-through" : "none",
-                  maxWidth: "600px",
-                  wordWrap: "break-word",
-                }}
-              />
-              <Checkbox
-                checked={item.isBought}
-                onChange={() => handleToggleIsBought(item.id, item.isBought)}
-              />
-              <Button onClick={() => handleDeleteItem(item.id)}>Delete</Button>
-              <Button onClick={() => handleOpenPopup(item.id)}>Edit</Button>
-            </ListItem>
+            <Item
+              item={item}
+              handleToggleIsBought={handleToggleIsBought}
+              handleDeleteItem={handleDeleteItem}
+              handleOpenPopup={handleOpenPopup}
+              i={i}
+            />
           ))}
         </List>
         <div style={{ marginTop: 20 }}>
@@ -281,48 +242,18 @@ const GroceryList = () => {
             <Typography variant="body2">{`Potential cost amount: ${filteredPotenialSum} $`}</Typography>
           )}
         </div>
-        <Dialog open={isPopupOpen} onClose={handleClosePopup}>
-          <DialogTitle>Edit Item</DialogTitle>
-          <DialogContent
-            style={{
-              padding: 20,
-            }}
-          >
-            <TextField
-              label="Item Name"
-              value={modalText}
-              onChange={(e) => {
-                setModalText(e.target.value);
-              }}
-              fullWidth
-            />
-            <TextField
-              label="Item Price"
-              type="number"
-              value={modalPrice}
-              onChange={(e) => setModalPrice(e.target.value)}
-              fullWidth
-              style={{ marginTop: 10 }}
-            />
-            <Checkbox
-              checked={modalIsBought}
-              onChange={(e) => setModalIsBought(e.target.checked)}
-              color="primary"
-            />
-            <Typography variant="body1">Is Bought</Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleEditItem} color="primary">
-              Save
-            </Button>
-            <Button onClick={handleDeleteSelectedItem} color="primary">
-              Delete
-            </Button>
-            <Button onClick={handleClosePopup} color="primary">
-              Close
-            </Button>
-          </DialogActions>
-        </Dialog>
+        <PopUp
+          isPopupOpen={isPopupOpen}
+          handleClosePopup={handleClosePopup}
+          setModalText={setModalText}
+          setModalPrice={setModalPrice}
+          setModalIsBought={setModalIsBought}
+          modalText={modalText}
+          modalPrice={modalPrice}
+          modalIsBought={modalIsBought}
+          handleEditItem={handleEditItem}
+          handleDeleteSelectedItem={handleDeleteSelectedItem}
+        />
       </Container>
     </ThemeProvider>
   );
